@@ -1,18 +1,15 @@
-# Rename this to sc-config.ps1
-Write-Host "Star Citizen Launcher"
-Write-Host "---------------------"
+# Rename this file to sc-config.ps1
 
 # Set path of Star Citizen
 # Default path is
 # $SCPath = "${env:ProgramFiles}\Roberts Space Industries"
-$SCPath = "D:\Program Files\Roberts Space Industries"
+$SCPath = "${env:ProgramFiles}\Roberts Space Industries"
 Write-Host "Star Citizen Path is " $SCPath
 Write-Host ""
 
 # Stop Process list
 # List out the EXE names of all the processes you want to stop
 $StopProcessList = @(
-    #"Discord"
     "steam"
     "steamwebhelper"
     "GreenShot"
@@ -20,42 +17,24 @@ $StopProcessList = @(
     "EpicGamesLauncher"
 )
 
-Write-Host "Processes to stop:"
-Write-Host "------------------"
-foreach ($process in $StopProcessList) {
-    Write-Host "$process"
-}
-Write-Host ""
-
 # Start Program List
-# List out the ProgName, ProgPath, Progdir, and ProgArgs
-# If you specify ProgName it will not try and launch the Program again.
+# [PSCustomObject]@{ProgName = "exename"; ProgPath = "path\to\program\program.exe"; ProgDir = "path\to\program"; ProgArgs = "-Arg1=somearg"}
+# If you specify ProgName it will not launch if the process is running already.
 # If you do not specify the ProgName it will launch the program again.
-# Only ProgPath is required
+# Required parameters: ProgPath, ProgDir
+# Optional paramters: Progname, ProgArgs
 $ProgList = @(
     #[PSCustomObject]@{ProgName = "exename"; ProgPath = "path\to\program\program.exe"; ProgDir = "path\to\program"; ProgArgs = "-Arg1=somearg"}
     [PSCustomObject]@{ProgName = "RSI Launcher"; ProgPath = "$SCPath\RSI Launcher\RSI Launcher.exe"; ProgDir = "$SCPath\RSI Launcher"}
-    [PSCustomObject]@{ProgName = "joystick_gremlin"; ProgPath = "${env:ProgramFiles(x86)}\H2ik\Joystick Gremlin\joystick_gremlin.exe"; ProgDir = "${env:ProgramFiles(x86)}\H2ik\Joystick Gremlin"}
-    [PSCustomObject]@{ProgName = "VoiceAttack"; ProgPath = "${env:ProgramFiles}\VoiceAttack\VoiceAttack.exe"; ProgDir = "${env:ProgramFiles}\VoiceAttack"}
-    [PSCustomObject]@{ProgName = "opentrack"; ProgPath = "D:\Users\chada\nextcloud\Documents\star citizen\opentrack-2022.2.0-portable\install\opentrack.exe"; ProgDir = "D:\Users\chada\nextcloud\Documents\star citizen\opentrack-2022.2.0-portable\install"}
-    [PSCustomObject]@{ProgDir = "${env:ProgramFiles}\Google\Chrome\Application"; ProgPath = "${env:ProgramFiles}\Google\Chrome\Application\chrome.exe"; ProgArgs ='https://studio.youtube.com/channel/UCAIcbgAh3PXpf2uIQcuLw7g --user-data-dir=D:\Users\chada\chrome2'}
-    [PSCustomObject]@{ProgName = "obs64"; ProgPath = "D:\Users\chada\nextcloud\portable-apps\obs-studio star citizen\bin\64bit\obs64.exe"; ProgDir = "D:\Users\chada\nextcloud\portable-apps\obs-studio star citizen\bin\64bit"}
-)
+ )
     # Old versions of Chrome could be installed in ${env:ProgramFiles(x86)}
     #[PSCustomObject]@{ProgDir = "${env:ProgramFiles(x86)}\Google\Chrome\Application"; ProgPath = "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe"; ProgArgs ='https://studio.youtube.com/channel/UCAIcbgAh3PXpf2uIQcuLw7g --user-data-dir=D:\Users\chada\chrome2'}
     #[PSCustomObject]@{ProgName = "mumble"; ProgPath = "${env:ProgramFiles(x86)}\Mumble\client\mumble.exe"; ProgDir = "${env:ProgramFiles(x86)}\Mumble\client"}
-
-
-# List ProgList Array
-Write-Host "Program List to Launch"
-Write-Host "----------------------"
-foreach ( $ProgListNode in $ProgList ) {
-    Write-Host "ProgPath:" $ProgListNode.ProgPath
-    Write-Host "  ProgName:" $ProgListNode.ProgName
-    Write-Host "  ProgDir:" $ProgListNode.ProgDir
-    Write-Host "  ProgArgs:" $ProgListNode.ProgArgs
-}
-Write-Host ""
+    #[PSCustomObject]@{ProgName = "joystick_gremlin"; ProgPath = "${env:ProgramFiles(x86)}\H2ik\Joystick Gremlin\joystick_gremlin.exe"; ProgDir = "${env:ProgramFiles(x86)}\H2ik\Joystick Gremlin"}
+    #[PSCustomObject]@{ProgName = "VoiceAttack"; ProgPath = "${env:ProgramFiles}\VoiceAttack\VoiceAttack.exe"; ProgDir = "${env:ProgramFiles}\VoiceAttack"}
+    #[PSCustomObject]@{ProgName = "opentrack"; ProgPath = "D:\Users\chada\nextcloud\Documents\star citizen\opentrack-2022.2.0-portable\install\opentrack.exe"; ProgDir = "D:\Users\chada\nextcloud\Documents\star citizen\opentrack-2022.2.0-portable\install"}
+    #[PSCustomObject]@{ProgDir = "${env:ProgramFiles}\Google\Chrome\Application"; ProgPath = "${env:ProgramFiles}\Google\Chrome\Application\chrome.exe"; ProgArgs ='https://studio.youtube.com/channel/UCAIcbgAh3PXpf2uIQcuLw7g --user-data-dir=D:\Users\chada\chrome2'}
+    #[PSCustomObject]@{ProgName = "obs64"; ProgPath = "D:\Users\chada\nextcloud\portable-apps\obs-studio star citizen\bin\64bit\obs64.exe"; ProgDir = "D:\Users\chada\nextcloud\portable-apps\obs-studio star citizen\bin\64bit"}
 
 # Set Primary monitor if you have more than one
 # This uses the free utility MultiMonitor
@@ -68,15 +47,12 @@ Write-Host ""
 #  MONITOR\SPT2401\{4d36e96e-e325-11ce-bfc1-08002be10318}\0006
 #  This GUID is consistent no matter what stupid Display number Windows assigns
 $PrimaryMonitor = "MONITOR\SPT2401\{4d36e96e-e325-11ce-bfc1-08002be10318}\0006"
-Write-Host "Primary Monitor:"
-Write-Host "----------------"
-Write-Host $PrimaryMonitor
-Write-Host ""
+
 
 # Stop Services
+# This powershell script will run as a privileged admin user
 $stopservicescmd = "-WindowStyle Minimized -file `"" + $scriptdir + "\$basefile-stopservices.ps1`""
-Write-Host "Stop Services Command:" $stopservicescmd
-Write-Host ""
+
 
 # Stop Processes After closing RSI Launcher
 $PostStopList = @(
@@ -86,6 +62,11 @@ $PostStopList = @(
 )
 
 # Start processes after closing RSI Launcher
+# [PSCustomObject]@{ProgName = "exename"; ProgPath = "path\to\program\program.exe"; ProgDir = "path\to\program"; ProgArgs = "-Arg1=somearg"}
+# If you specify ProgName it will not launch if the process is running already.
+# If you do not specify the ProgName it will launch the program again.
+# Required parameters: ProgPath, ProgDir
+# Optional paramters: Progname, ProgArgs
 $PostProgList = @(
     #[PSCustomObject]@{ProgName = "exename"; ProgPath = "path\to\program\program.exe"; ProgDir = "path\to\program"; ProgArgs = "-Arg1=somearg"}
     [PSCustomObject]@{ProgName = "Greenshot"; ProgPath = "${env:ProgramFiles}\Greenshot\Greenshot.exe"; ProgDir = "${env:ProgramFiles}\Greenshot"}

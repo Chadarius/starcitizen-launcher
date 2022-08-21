@@ -8,6 +8,8 @@
 # Then it will monitor for the StarCitizen.exe and Launcher and
 # relaunch any processes and services
 
+Write-Host "Star Citizen Launcher"
+Write-Host "---------------------"
 # Set the current path of the script
 $scriptdir = $PSScriptRoot
 Write-Host "Scriptdir is " $scriptdir
