@@ -119,7 +119,6 @@ foreach ( $ProgListNode in $ProgList ) {
     StartProg -ProgName $ProgListNode.ProgName -ProgPath $ProgListNode.ProgPath -ProgDir $ProgListNode.ProgDir -ProgArgs $ProgListNode.ProgArgs 
 }
 
-
 # Shutdown stuff with elevated user
 # Stop Services
 Write-host "Launching: PowerShell.exe " $stopservicescmd

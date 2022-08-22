@@ -1,4 +1,6 @@
 # sc-stop services
+# This scripts completes tasks that require admin privileges 
+
 # Launch with admin rights
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
     if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
@@ -8,7 +10,27 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
     }
    }
 
-# Function to stop services
+Write-Host "Star Citizen Stop Services"
+Write-Host "--------------------------"
+
+# Load config file
+# rename sc-config-example.ps1 to sc-config.ps1 and configure settings
+$basefile = (Get-Item $PSCommandPath ).BaseName
+$basefile = $basefile.replace('-stopservices','')
+$configfile = "$basefile-config.ps1" 
+
+if (Test-Path -Path $configfile -PathType Leaf) {
+    Write-Host "Configfile is: " $configfile
+    . $PSScriptRoot\$configfile    
+}
+else {
+    Write-Host "ERROR:"
+    Write-Host "$configfile not found."
+    Write-Host "Copy sc-config-example.ps1 to sc-config.ps1 and"
+    Write-Host "edit appropriate settings"
+    exit 1
+}
+
 function StopService {
     [CmdletBinding()]
     param ($ServiceName)
@@ -17,9 +39,10 @@ function StopService {
         Stop-Service -Name $ServiceName
     }
     catch {
-        Write-Host "$ServiceName does not need to be stopped"
+        Write-Host "Stopping $ServiceName error or does not exist"
+        $StartServiceError = $Error[0]
+        Write-Host $StartServiceError
     }
-    Stop-Service -Name $ServiceName
 }
 
 function StartService {
@@ -30,6 +53,8 @@ function StartService {
     }
     catch {
         Write-Host "$ServiceName did not restart"
+        $StartServiceError = $Error[0]
+        Write-Host $StartServiceError
     }
 }
 
@@ -58,67 +83,35 @@ function StartProg {
         }
     }
 }
+function CreateRegKey {
+    param ($regpath, $keyname, $keyvalue, $keytype)
+    # Create the key if it does not exist
+    If (-NOT (Test-Path $regpath)) {
+        Write-Host "Creating regpath: $regpath"
+        New-Item -Path $regpath -Force | Out-Null
+    }  
+    # Set Value
+    Write-Host "Configuring $keyname to $keyvalue as $keytype"
+    New-ItemProperty -Path $regpath -Name $keyname -Value $keyvalue -PropertyType $keytype -Force
+}
 
-# stop the services
-# Print Spooler
-StopService -ServiceName "spooler"
-# Windows Hotspot Service
-StopService -ServiceName "icssvc"
-# Stop Window Image Aquisition service
-#StopService -ServiceName "stisvc"
-#Stop Connected User Experience and Telemetry
-StopService -ServiceName "DiagTrack"
-# Stop Geolocation Service
-# StopService -ServiceName "lfsvc"
-# Windows Biometric Service
-#StopService -ServiceName "WbioSrvc"
-# Program Compatibility Assistant Service
-#StopService -ServiceName "PcaSvc"
-# Downloaded Maps Manager - Who even uses Microsoft Maps?
-# StopService -ServiceName "MapsBroker"
-# Touch Keyboard and Handwriting Service
-#StopService -ServiceName "TabletInputService"
-# Windows Search
-StopService -ServiceName "WSearch"
-# Security Center
-#StopService -ServiceName "wscsvc"
-# Diagnostic Policy Service
-#StopService -ServiceName "DPS"
-# IP Helper
-#StopService -ServiceName "iphlpsvc"
-# TCP/IP Netbios Helper
-#StopService -ServiceName "lmhosts"
+# Stop services
+foreach ( $service in $StopServicesList ) {
+    StopService $service
+}
 
-# Stop MSIAfterburner and Riva Tuner
-# Then interfere with OBS Studio and are unstable with Star Citizen
-# They also slow down FPS
-StopProcess -ProcessName "MSIAfterburner"
-StopProcess -ProcessName "rtss"
-StopProcess -ProcessName "rtssHooksLoader64"
+# Stop processes that require an admin to stop
+foreach ( $process in $StopProcessList) {
+    StopProcess $process
+}
 
-# Set CPU Priority for Star Citizen
-# [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\StarCitizen.exe\PerfOptions] 
-#"CpuPriorityClass"=dword:PRIORITY
-$regpath = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\StarCitizen.exe\PerfOptions'
-$keyname = 'CpuPriorityClass'
-$keyvalue = '3'
-# Create the key if it does not exist
-If (-NOT (Test-Path $regpath)) {
-    New-Item -Path $regpath -Force | Out-Null
-  }  
-# Set Value
-New-ItemProperty -Path $regpath -Name $keyname -Value $keyvalue -PropertyType DWORD -Force
-
-
-# Start Process Explorer
-#StartProg -ProgName "procexp64" -ProgPath "D:\Users\chada\nextcloud\bin\procexp64.exe" -ProgDir "D:\Users\chada\nextcloud\bin"
-
-
-# Set DNS for optimal speed - Cloudflair DNS servers
-#Set-DNSClientServerAddress "Ethernet" -ServerAddresses ("1.1.1.1","192.168.0.8")
-#Set-DNSClientServerAddress "Wi-Fi 2" -ServerAddresses ("1.1.1.1","192.168.0.8")
-
-
+# Modify Regisitry Settings
+Write-Host "Modifying registry settings..."
+If ($RegSettings) {
+    foreach ( $RegEntry in $RegSettings) {
+        CreateRegKey -regpath $RegEntry.regpath -keyname $RegEntry.keyname -keyvalue $RegEntry.keyvalue -keytype $RegEntry.keytype
+    }
+}
 
 # Wait for RSI Launcher to be closed then start things back up again.
 $launcherprocess = (Get-Process -Name "RSI Launcher" -ErrorAction SilentlyContinue)
@@ -134,33 +127,9 @@ finally {
     Write-Host "RSI Launcher is not running" 
 }
 
-# Set DNS back to DHCP DNS only
-#Set-DNSClientServerAddress "Ethernet"-ResetServerAddresses
-#Set-DNSClientServerAddress "Wi-Fi 2" -ResetServerAddresses
-
-Write-host "Starting select system services again"
-# Start Print Spooler
-StartService -ServiceName "spooler"
-# Windows Biometric Service
-#StartService -ServiceName "WbioSrvc"
-# Touch Keyboard and Handwriting Service
-#StartService -ServiceName "TabletInputService"
-# Windows Image Aquisition
-#StartService -ServiceName "StiSvc"
-# Windows Search
-# StartService -ServiceName "WSearch"
-# Security Center
-#StartService -ServiceName "wscsvc"
-# Geolocation Service
-# StartService -ServiceName "lfsvc"
-# Program Compatability Service
-#StartService -ServiceName "PcaSvc"
-# Diagnostic Policy Service
-#StartService -ServiceName "DPS"
-# IP Helper
-#StartService -ServiceName "iphlpsvc"
-# TCP/IP Netbios Helper
-#StartService -ServiceName "lmhosts"
-
+# Start Services after RSI Launcher is closed
+foreach ( $service in $StopServicesList ) {
+    StartService $service
+}
 
 exit 0
