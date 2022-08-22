@@ -121,8 +121,8 @@ foreach ( $ProgListNode in $ProgList ) {
 
 # Shutdown stuff with elevated user
 # Stop Services
-Write-host "Launching: PowerShell.exe " $stopservicescmd
-start-process -FilePath PowerShell.exe -ArgumentList $stopservicescmd 
+Write-host "Launching: PowerShell.exe" $stopservicescmd
+Start-Process PowerShell.exe $stopservicescmd
 
 # Wait for RSI Launcher and StarCitizen to be closed then start things back up again.
 #Wait-Process -Name "RSI Launcher"
@@ -155,6 +155,4 @@ foreach ( $ProgListNode in $PostProgList ) {
     StartProg -ProgName $ProgListNode.ProgName -ProgPath $ProgListNode.ProgPath -ProgDir $ProgListNode.ProgDir -ProgArgs $ProgListNode.ProgArgs 
 }
 
-Write-host "Closing Star Citizen Launcher"
-
-exit 
+Write-host "Closing Star Citizen Launch"

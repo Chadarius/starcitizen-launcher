@@ -1,17 +1,9 @@
 # sc-stop services
 # This scripts completes tasks that require admin privileges 
-
-# Launch with admin rights
-if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
-    if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
-     $CommandLine = "-WindowStyle Minimized -File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
-     Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
-     Exit
-    }
-   }
-
-Write-Host "Star Citizen Stop Services"
-Write-Host "--------------------------"
+if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Start-Process PowerShell -WindowStyle Minimized -Verb RunAs "-NoProfile -ExecutionPolicy Bypass -Command `"cd '$pwd'; & '$PSCommandPath';`"";
+    exit;
+}
 
 # Load config file
 # rename sc-config-example.ps1 to sc-config.ps1 and configure settings
@@ -30,6 +22,9 @@ else {
     Write-Host "edit appropriate settings"
     exit 1
 }
+
+Write-Host "Star Citizen Stop Services"
+Write-Host "--------------------------"
 
 function StopService {
     [CmdletBinding()]
@@ -101,7 +96,7 @@ foreach ( $service in $StopServicesList ) {
 }
 
 # Stop processes that require an admin to stop
-foreach ( $process in $StopProcessList) {
+foreach ( $process in $StopAdminProcs ) {
     StopProcess $process
 }
 

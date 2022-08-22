@@ -34,7 +34,7 @@ $ProgList = @(
     #[PSCustomObject]@{ProgName = "mumble"; ProgPath = "${env:ProgramFiles(x86)}\Mumble\client\mumble.exe"; ProgDir = "${env:ProgramFiles(x86)}\Mumble\client"}
     #[PSCustomObject]@{ProgName = "joystick_gremlin"; ProgPath = "${env:ProgramFiles(x86)}\H2ik\Joystick Gremlin\joystick_gremlin.exe"; ProgDir = "${env:ProgramFiles(x86)}\H2ik\Joystick Gremlin"}
     #[PSCustomObject]@{ProgName = "VoiceAttack"; ProgPath = "${env:ProgramFiles}\VoiceAttack\VoiceAttack.exe"; ProgDir = "${env:ProgramFiles}\VoiceAttack"}
-    #[PSCustomObject]@{ProgName = "opentrack"; ProgPath = "D:\Users\chada\nextcloud\Documents\star citizen\opentrack-2022.2.0-portable\install\opentrack.exe"; ProgDir = "D:\Users\chada\nextcloud\Documents\star citizen\opentrack-2022.2.0-portable\install"}
+    #[PSCustomObject]@{ProgName = "opentrack"; ProgPath = "D:\Users\chada\nextcloud\Documents\star citizen\opentrack\install\opentrack.exe"; ProgDir = "D:\Users\chada\nextcloud\Documents\star citizen\opentrack\install"}
     #[PSCustomObject]@{ProgDir = "${env:ProgramFiles}\Google\Chrome\Application"; ProgPath = "${env:ProgramFiles}\Google\Chrome\Application\chrome.exe"; ProgArgs ='https://studio.youtube.com/channel/UCAIcbgAh3PXpf2uIQcuLw7g --user-data-dir=D:\Users\chada\chrome2'}
     #[PSCustomObject]@{ProgName = "obs64"; ProgPath = "D:\Users\chada\nextcloud\portable-apps\obs-studio star citizen\bin\64bit\obs64.exe"; ProgDir = "D:\Users\chada\nextcloud\portable-apps\obs-studio star citizen\bin\64bit"}
 
@@ -87,9 +87,9 @@ $StopServicesList = @(
 # Stop Admin Processes
 # Stop any background programs that need admin privileges to shutdown
 $StopAdminProcs = @(
-    "MSIAfterburner"
-    "rtss"
-    "rtssHooksLoader64"
+    "MSIAfterburner" # Slow FPS and OBS issues when MSIAfterburner is running
+    "rtss" # Slow FPS and OBS issues when Riva Tuner is running
+    "rtssHooksLoader64" # Slow FPS and OBS issues when Riva Tuner is running
 )
 
 # Stop Processes After closing RSI Launcher
