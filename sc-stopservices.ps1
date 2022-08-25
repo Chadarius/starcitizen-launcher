@@ -31,7 +31,7 @@ function StopService {
     param ($ServiceName)
     try {
         Write-Host "Stopping $ServiceName"
-        Stop-Service -Name $ServiceName
+        Stop-Service -Name $ServiceName -ErrorAction SilentlyContinue
     }
     catch {
         Write-Host "Stopping $ServiceName error or does not exist"
@@ -44,7 +44,7 @@ function StartService {
     param ($ServiceName)
     try {
         Write-Host "Starting $ServiceName"
-        Start-Service -Name $ServiceName
+        Start-Service -Name $ServiceName -ErrorAction SilentlyContinue
     }
     catch {
         Write-Host "$ServiceName did not restart"

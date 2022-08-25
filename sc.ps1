@@ -2,7 +2,8 @@
 # Beta v0.1
 # csutton@chadarius.com
 # Use at your own risk!
-# See LICENSE for MIT licensing
+# See LICENSE file for MIT licensing
+
 # Description:
 # This will manage processes, manage services, set primary monitor, and launch Star Citizen
 # Then it will monitor for the StarCitizen.exe and Launcher and
@@ -112,6 +113,9 @@ foreach ($process in $StopProcessList) {
 # Set the Primary monitor if more than 1 monitor is connected
 SetPrimaryMonitor -DisplayNum $PrimaryMonitor
 
+# Hide taskbar
+&{$p='HKCU:SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3';$v=(Get-ItemProperty -Path $p).Settings;$v[8]=3;&Set-ItemProperty -Path $p -Name Settings -Value $v;&Stop-Process -f -ProcessName explorer}
+
 # Start Programs
 # StartProg -ProgName $ProgListNode.ProgName -ProgPath $ProgListNode.ProgPath -ProgDir $ProgListNode.ProgDir -ProgArgs $ProgListNode.ProgArgs
 Write-Host "Starting Programs..."
@@ -154,5 +158,8 @@ Write-Host "Starting Programs after closing RSI Launcher Programs..."
 foreach ( $ProgListNode in $PostProgList ) {
     StartProg -ProgName $ProgListNode.ProgName -ProgPath $ProgListNode.ProgPath -ProgDir $ProgListNode.ProgDir -ProgArgs $ProgListNode.ProgArgs 
 }
+
+# Show Taskbar
+&{$p='HKCU:SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3';$v=(Get-ItemProperty -Path $p).Settings;$v[8]=2;&Set-ItemProperty -Path $p -Name Settings -Value $v;&Stop-Process -f -ProcessName explorer}
 
 Write-host "Closing Star Citizen Launch"
