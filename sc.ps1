@@ -66,6 +66,7 @@ function StartProg {
             Write-Host "ProgPath:" $ProgPath
             return 1
         }
+        Start-Sleep 2
     }
 }
 
