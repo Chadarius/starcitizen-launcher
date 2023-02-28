@@ -31,6 +31,7 @@ else {
     exit 1
 }
 
+# Functions 
 Function StopProcess {
     param (
         $ProcessName
@@ -101,6 +102,16 @@ function SetPrimaryMonitor {
     }
 }
 
+function MinimizeApps {
+    $a = New-Object -ComObject  Shell.Application
+    $a.MinimizeAll()
+    Start-Sleep 2
+}
+
+# End Functions
+
+MinimizeApps
+
 # Stop Processes Before Launch of Star Citizen
 # Edit StopProcessList in sc-config.ps1
 Write-Host "Stopping Procceses..."
@@ -109,7 +120,7 @@ foreach ($process in $StopProcessList) {
 }
 
 # Clear Star Citizen Cache $SCPath\StarCitizen\LIVE\USER\Client\0\shaders\cache
-#Remove-Item $SCPath"\StarCitizen\LIVE\USER\Client\0\shaders\cache\*" -Recurse
+#Remove-Item "$env:localappdata\Star Citizen\sc-alpha-3.18.x_szkklb_0\*" -Recurse
 
 # Set the Primary monitor if more than 1 monitor is connected
 SetPrimaryMonitor -DisplayNum $PrimaryMonitor
