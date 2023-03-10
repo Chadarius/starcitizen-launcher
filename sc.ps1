@@ -120,7 +120,7 @@ foreach ($process in $StopProcessList) {
 }
 
 # Clear Star Citizen Cache $SCPath\StarCitizen\LIVE\USER\Client\0\shaders\cache
-#Remove-Item "$env:localappdata\Star Citizen\sc-alpha-3.18.x_szkklb_0\*" -Recurse
+#Remove-Item "$env:localappdata\Star Citizen\*" -Recurse
 
 # Set the Primary monitor if more than 1 monitor is connected
 SetPrimaryMonitor -DisplayNum $PrimaryMonitor
